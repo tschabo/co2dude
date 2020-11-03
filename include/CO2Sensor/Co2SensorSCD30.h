@@ -1,9 +1,9 @@
 #ifdef ENABLE_SCD30
 
 #pragma once
-#include "Co2Sensor.h"
+#include "ICo2Sensor.h"
 
-static class Co2SensorSCD30 : public Co2Sensor
+static class Co2SensorSCD30 : public ICo2Sensor
 {
 public:
     Co2SensorSCD30() = default;

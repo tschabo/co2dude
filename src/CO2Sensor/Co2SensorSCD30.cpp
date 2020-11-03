@@ -2,7 +2,7 @@
 
 #ifdef ENABLE_SCD30
 
-#include "Co2SensorSCD30.h"
+#include "CO2Sensor/Co2SensorSCD30.h"
 #include <SparkFun_SCD30_Arduino_Library.h>
 
 namespace

@@ -1,11 +1,11 @@
 #ifdef ENABLE_MHZ19
 
 #pragma once
-#include "Co2Sensor.h"
+#include "ICo2Sensor.h"
 #include <MHZ19.h>
 #include <SoftwareSerial.h>
 
-static class Co2SensorMHZ19 : public Co2Sensor
+static class Co2SensorMHZ19 : public ICo2Sensor
 {
 public:
     Co2SensorMHZ19() : _serial(CO2_SERIAL_RX_PIN, CO2_SERIAL_TX_PIN){}

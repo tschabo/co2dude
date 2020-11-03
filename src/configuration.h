@@ -12,6 +12,7 @@
 #define ENABLE_SD_LOGGING
 #define ENABLE_RTC
 #define ENABLE_DISPLAY
+#define ENABLE_LEDSTRIP
 
 // MHZ19 Settings
 #ifdef ENABLE_MHZ19

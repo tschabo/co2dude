@@ -12,36 +12,13 @@
 #include "TheLogger.h"
 
 #include "utils.h"
-#include "Co2Sensor.h"
+#include "CO2Sensor/ICo2Sensor.h"
+#include "LedStrip/LedStrip.h"
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
 SSD1306Wire display(0x3c, SDA, SCL, GEOMETRY_128_32);
 RTC_DS1307 rtc;
 TheLogger logger;
 MHZ19 mhz19;
-
-auto blinkState = false;
-uint32_t translate(uint16_t ppm)
-{
-
-  if (ppm < 700u)
-  {
-    if (ppm <= 400u)
-      ppm = 400u;
-    return Adafruit_NeoPixel::Color(0, 0xFF, 0);
-  }
-  else if (ppm < 1000u)
-  {
-    return Adafruit_NeoPixel::Color(0xFF, 0xFF, 0);
-  }
-  else if (ppm < 2000u)
-  {
-    return Adafruit_NeoPixel::Color(0xFF, 0, 0);
-  }
-  if (blinkState)
-    return Adafruit_NeoPixel::Color(0xFF, 0, 0);
-  return Adafruit_NeoPixel::Color(0, 0, 0);
-}
 
 void setup()
 {
@@ -63,22 +40,14 @@ void setup()
   display.setTextAlignment(TEXT_ALIGN_CENTER);
   display.drawString(64, 14, "Heating");
   display.display();
-  CheckTimeSpanPassed blah(10000);
+
+  ledStrip.begin();
   CheckTimeSpanPassed checkSecond(1000);
-  uint8_t col{1};
-  bool direction{};
-  strip.begin();
-  strip.setBrightness(20);
   while (!co2Sensor.isReady())
   {
     if (checkSecond())
       Serial.print(".");
-    if (col == 150 || col == 0)
-      direction = !direction;
-    strip.setPixelColor(0, Adafruit_NeoPixel::Color(0, 0, col));
-    strip.show();
-    direction ? col-- : col++;
-    delay(10);
+    ledStrip.go(LedStrip::heating);
   }
   Serial.println("Start");
 }
@@ -92,13 +61,12 @@ void loop()
 {
   static CheckTimeSpanPassed everySecond(1000, true);
   static CheckTimeSpanPassed every10Seconds(10000,true);
-  static CheckTimeSpanPassed every500Millis(500);
+  static CheckTimeSpanPassed every20Millis(20);
 
-  if (every500Millis())
+  if (every20Millis())
   {
-    blinkState = !blinkState;
-    strip.setPixelColor(0, translate(ppm));
-    strip.show();
+    ledStrip.setPpm(ppm);
+    ledStrip.go();
   }
   if (everySecond())
   {

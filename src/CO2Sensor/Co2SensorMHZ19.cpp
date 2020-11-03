@@ -3,7 +3,7 @@
 
 #ifdef ENABLE_MHZ19
 
-#include "Co2SensorMHZ19.h"
+#include "CO2Sensor/Co2SensorMHZ19.h"
 
 void Co2SensorMHZ19::begin()
 {

@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 
-class Co2Sensor
+class ICo2Sensor
 {
 public:
     virtual void begin() = 0;
