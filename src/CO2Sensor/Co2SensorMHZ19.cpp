@@ -18,17 +18,20 @@ uint16_t Co2SensorMHZ19::getCo2()
 
 bool Co2SensorMHZ19::isReady()
 {
-    static CheckTimeSpanPassed heatingTimespanPassed(1000 * 60 * 3); // 3 minutes for heating according to datasheet
+    static bool ready{false};
+
+    if (ready)
+        return true;
+        
+    static auto heatingTimespanPassed = CheckTimeSpanPassed(1000 * 60 * 3, false); // 3 minutes for heating according to datasheet
     static bool initialHeatingDone{false};
-    
+
     if (!initialHeatingDone && heatingTimespanPassed())
         initialHeatingDone = true;
     else
         return false;
 
-    static CheckTimeSpanPassed every100millis(500, true);
-    static bool ready{false};
-
+    static auto every100millis = CheckTimeSpanPassed(500, true);
     if (every100millis())
         ready = _mhz19.getCO2() != 0;
     return ready;

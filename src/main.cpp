@@ -23,7 +23,8 @@ MHZ19 mhz19;
 void setup()
 {
   Serial.begin(115200);
-  while (!Serial);  
+  while (!Serial)
+    ;
   co2Sensor.begin();
   display.init();
   display.flipScreenVertically();
@@ -42,12 +43,13 @@ void setup()
   display.display();
 
   ledStrip.begin();
-  CheckTimeSpanPassed checkSecond(1000);
+  auto checkSecond = CheckTimeSpanPassed(1000, false);
   while (!co2Sensor.isReady())
   {
     if (checkSecond())
       Serial.print(".");
     ledStrip.go(LedStrip::heating);
+    delay(20); // only here ... nowhere else
   }
   Serial.println("Start");
 }
@@ -59,10 +61,10 @@ uint16_t ppm{};
 
 void loop()
 {
-  static CheckTimeSpanPassed everySecond(1000, true);
-  static CheckTimeSpanPassed every10Seconds(10000,true);
-  static CheckTimeSpanPassed every20Millis(20);
-
+  static auto everySecond = CheckTimeSpanPassed(1000, true);
+  static auto every10Seconds = CheckTimeSpanPassed(10000, true);
+  static auto every20Millis = CheckTimeSpanPassed(20, false);
+  
   if (every20Millis())
   {
     ledStrip.setPpm(ppm);
@@ -70,7 +72,7 @@ void loop()
   }
   if (everySecond())
   {
-    if(ppm == 0)
+    if (ppm == 0)
       return; // initial state ... wait for the first read;
     now = rtc.now();
     snprintf(g_currentTimestamp, sizeof(g_currentTimestamp), "%d/%02d/%02d %02d:%02d:%02d", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second());

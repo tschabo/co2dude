@@ -9,22 +9,14 @@ void LedStrip::setPpm(uint16_t){};
 void LedStrip::go(state){};
 #else
 
-namespace
-{
-    static Adafruit_NeoPixel &getStrip()
-    {
-        static auto strip(Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800));
-        return strip;
-    }
-} // namespace
-
-LedStrip::LedStrip() : _every500Millis(500) {}
+LedStrip::LedStrip() : _strip(Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800)),
+                       _every500Millis(CheckTimeSpanPassed(500, false)) {}
 
 void LedStrip::begin()
 {
-    getStrip().begin();
-    getStrip().show();
-    getStrip().setBrightness(50);
+    _strip.begin();
+    _strip.show();
+    _strip.setBrightness(50);
 }
 
 void LedStrip::setPpm(uint16_t ppm)
@@ -48,7 +40,8 @@ uint32_t LedStrip::translate(uint16_t ppm)
     {
         return Adafruit_NeoPixel::Color(0xFF, 0, 0);
     }
-    // everything else is >= 2000 ppm
+
+    // all other values are >= 2000
     if (_every500Millis())
         _blinkState = !_blinkState;
     if (_blinkState)
@@ -72,27 +65,21 @@ void LedStrip::go(state s)
         break;
     }
     case LedStrip::heating:
-        static CheckTimeSpanPassed every500Millis(500);
-        static uint8_t col = 0;
-        static bool direction = true;
-        if (every500Millis())
-        {
-            needsUpdate = true;
-            if (col == 150 || col == 0)
-                direction = !direction;
-            _color = Adafruit_NeoPixel::Color(0, 0, col);
-            direction ? col-- : col++;
-            break;
-        }
+        needsUpdate = true;
+        if (col0r == 150 || col0r == 0)
+            direction = !direction;
+        _color = Adafruit_NeoPixel::Color(0, 0, col0r);
+        direction ? col0r-- : col0r++;
+        break;
     }
 
     if (needsUpdate)
     {
-        for (size_t i = 0; i < getStrip().numPixels(); i++)
+        for (size_t i = 0; i < _strip.numPixels(); i++)
         {
-            getStrip().setPixelColor(i, _color);
+            _strip.setPixelColor(i, _color);
         }
-        getStrip().show();
+        _strip.show();
     }
 }
 
