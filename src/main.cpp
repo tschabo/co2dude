@@ -70,6 +70,12 @@ void loop()
     ledStrip.setPpm(ppm);
     ledStrip.go();
   }
+  if (every10Seconds())
+  {
+    ppm = co2Sensor.getCo2();
+    logger.log(String(ppm));
+    Serial.println(ppm);
+  }
   if (everySecond())
   {
     if (ppm == 0)
@@ -84,11 +90,5 @@ void loop()
     display.setTextAlignment(TEXT_ALIGN_CENTER);
     display.drawString(64, 14, String(ppm) + " ppm");
     display.display();
-  }
-  if (every10Seconds())
-  {
-    ppm = co2Sensor.getCo2();
-    logger.log(String(ppm));
-    Serial.println(ppm);
   }
 }

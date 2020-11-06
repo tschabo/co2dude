@@ -3,7 +3,9 @@
 #include <inttypes.h>
 #include "utils.h"
 
+#ifdef ENABLE_LEDSTRIP
 #include <Adafruit_NeoPixel.h>
+#endif
 
 static class LedStrip
 {
@@ -22,6 +24,7 @@ public:
     void go(state s = measuring);
 
 private:
+#ifdef ENABLE_LEDSTRIP
     Adafruit_NeoPixel _strip;
 
     uint16_t _ppm{};
@@ -29,8 +32,9 @@ private:
     bool _blinkState{true};
     CheckTimeSpanPassed _every500Millis;
 
-    uint8_t col0r = 0;
+    uint8_t _blueish = 0;
     bool direction = true;
 
     uint32_t translate(uint16_t ppm);
+#endif
 } ledStrip;

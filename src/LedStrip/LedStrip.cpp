@@ -1,13 +1,15 @@
 #include "LedStrip/LedStrip.h"
 #include "configuration.h"
-#include <Adafruit_NeoPixel.h>
-#include "utils.h"
 
 #ifndef ENABLE_LEDSTRIP
+LedStrip::LedStrip(){}
 void LedStrip::begin(){};
 void LedStrip::setPpm(uint16_t){};
 void LedStrip::go(state){};
 #else
+
+#include <Adafruit_NeoPixel.h>
+#include "utils.h"
 
 LedStrip::LedStrip() : _strip(Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800)),
                        _every500Millis(CheckTimeSpanPassed(500, false)) {}
@@ -27,19 +29,11 @@ void LedStrip::setPpm(uint16_t ppm)
 uint32_t LedStrip::translate(uint16_t ppm)
 {
     if (ppm < 700u)
-    {
-        if (ppm <= 400u)
-            ppm = 400u;
         return Adafruit_NeoPixel::Color(0, 0xFF, 0);
-    }
     else if (ppm < 1000u)
-    {
         return Adafruit_NeoPixel::Color(0xFF, 0xFF, 0);
-    }
     else if (ppm < 2000u)
-    {
         return Adafruit_NeoPixel::Color(0xFF, 0, 0);
-    }
 
     // all other values are >= 2000
     if (_every500Millis())
@@ -56,20 +50,20 @@ void LedStrip::go(state s)
     {
     case measuring:
     {
-        auto currentPPM = translate(_ppm);
-        if (currentPPM != _color)
+        auto currentColor = translate(_ppm);
+        if (currentColor != _color)
         {
             needsUpdate = true;
-            _color = currentPPM;
+            _color = currentColor;
         }
         break;
     }
     case LedStrip::heating:
         needsUpdate = true;
-        if (col0r == 150 || col0r == 0)
+        if (_blueish == 150 || _blueish == 0)
             direction = !direction;
-        _color = Adafruit_NeoPixel::Color(0, 0, col0r);
-        direction ? col0r-- : col0r++;
+        _color = Adafruit_NeoPixel::Color(0, 0, _blueish);
+        direction ? _blueish-- : _blueish++;
         break;
     }
 

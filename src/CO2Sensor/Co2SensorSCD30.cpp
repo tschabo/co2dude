@@ -4,6 +4,7 @@
 
 #include "CO2Sensor/Co2SensorSCD30.h"
 #include <SparkFun_SCD30_Arduino_Library.h>
+#include "utils.h"
 
 namespace
 {
@@ -16,11 +17,11 @@ namespace
 
 void Co2SensorSCD30::begin()
 {
-    if (getSensor().begin() == false)
+    if (!getSensor().begin())
     {
         Serial.println("Air sensor not detected. Please check wiring. Freezing...");
-        while (1)
-            ;
+        Serial.flush();
+        abort();
     }
 }
 
@@ -33,9 +34,10 @@ uint16_t Co2SensorSCD30::getCo2()
 
 bool Co2SensorSCD30::isReady()
 {
+    static auto wait10Seconds = CheckTimeSpanPassed(10000);
     if (_isReady)
         return true;
-    _isReady = getSensor().dataAvailable();
+    _isReady = wait10Seconds() && getSensor().dataAvailable();
     return _isReady;
 }
 
