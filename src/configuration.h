@@ -3,8 +3,8 @@
 ////////////////
 // CO2 Sensor //
 ////////////////
-#define ENABLE_MHZ19
-// #define ENABLE_SCD30
+//#define ENABLE_MHZ19
+#define ENABLE_SCD30
 
 //////////////
 // Features //

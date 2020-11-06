@@ -18,10 +18,10 @@
 SSD1306Wire display(0x3c, SDA, SCL, GEOMETRY_128_32);
 RTC_DS1307 rtc;
 TheLogger logger;
-MHZ19 mhz19;
 
 void setup()
 {
+  Wire.begin();
   Serial.begin(115200);
   while (!Serial)
     ;
