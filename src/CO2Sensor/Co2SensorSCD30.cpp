@@ -13,7 +13,7 @@ namespace
         static SCD30 theSensor{};
         return theSensor;
     }
-} 
+} // namespace
 
 void Co2SensorSCD30::begin()
 {
@@ -27,7 +27,7 @@ void Co2SensorSCD30::begin()
 
 uint16_t Co2SensorSCD30::getCo2()
 {
-    if(getSensor().dataAvailable())
+    if (getSensor().dataAvailable())
         _co2ppm = getSensor().getCO2();
     return _co2ppm;
 }
@@ -39,6 +39,12 @@ bool Co2SensorSCD30::isReady()
         return true;
     _isReady = wait10Seconds() && getSensor().dataAvailable();
     return _isReady;
+}
+
+void Co2SensorSCD30::calibrate()
+{
+    if (!getSensor().setForcedRecalibrationFactor(400))
+        Serial.println("failed to calibrate SCD30");
 }
 
 #endif

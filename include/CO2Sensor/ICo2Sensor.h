@@ -7,6 +7,7 @@ public:
     virtual void begin() = 0;
     virtual uint16_t getCo2() = 0;
     virtual bool isReady() = 0;
+    virtual void calibrate() = 0;
 };
 
 #ifdef ENABLE_MHZ19

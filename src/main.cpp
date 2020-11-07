@@ -60,6 +60,7 @@ DateTime now;
 uint16_t ppm{};
 
 const char CMD_SET_TIME[] = "set time ";
+const char CMD_CALIBRATE[] = "calibrate";
 
 // valid only for Types <= 16 bit
 // returns the max of the type in case of failure
@@ -83,6 +84,7 @@ T toUnsignedInteger(const char *begin, const char *end)
 
 void execCommand(const String &c)
 {
+  Serial.println(c);
   if (c.startsWith(CMD_SET_TIME))
   {
     if (c.length() != 28)
@@ -114,6 +116,11 @@ void execCommand(const String &c)
     }
     rtc.adjust(dt);
     Serial.println("success");
+    return;
+  }
+  else if(c == CMD_CALIBRATE)
+  {
+    co2Sensor.calibrate();
     return;
   }
   Serial.print("unknown conmmand: ");

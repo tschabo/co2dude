@@ -10,6 +10,7 @@ public:
     virtual void begin() override;
     virtual uint16_t getCo2() override;
     virtual bool isReady() override;
+    virtual void calibrate() override;
 
 private:
     bool _isReady{};

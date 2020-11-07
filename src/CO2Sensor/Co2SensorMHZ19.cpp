@@ -22,7 +22,7 @@ bool Co2SensorMHZ19::isReady()
 
     if (ready)
         return true;
-        
+
     static auto heatingTimespanPassed = CheckTimeSpanPassed(1000 * 60 * 3, false); // 3 minutes for heating according to datasheet
     static bool initialHeatingDone{false};
 
@@ -35,6 +35,11 @@ bool Co2SensorMHZ19::isReady()
     if (every100millis())
         ready = _mhz19.getCO2() != 0;
     return ready;
+}
+
+void Co2SensorMHZ19::calibrate()
+{
+    Serial.println("calibration is not implemented for MHZ19");
 }
 
 #endif

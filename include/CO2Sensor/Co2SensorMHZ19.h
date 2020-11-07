@@ -8,10 +8,11 @@
 static class Co2SensorMHZ19 : public ICo2Sensor
 {
 public:
-    Co2SensorMHZ19() : _serial(CO2_SERIAL_RX_PIN, CO2_SERIAL_TX_PIN){}
+    Co2SensorMHZ19() : _serial(CO2_SERIAL_RX_PIN, CO2_SERIAL_TX_PIN) {}
     virtual void begin() override;
     virtual uint16_t getCo2() override;
     virtual bool isReady() override;
+    virtual void calibrate() override;
 
 private:
     MHZ19 _mhz19;
