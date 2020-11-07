@@ -17,7 +17,7 @@ namespace
 
 void Co2SensorSCD30::begin()
 {
-    if (!getSensor().begin())
+    if (!getSensor().begin(Wire, false))
     {
         Serial.println("Air sensor not detected. Please check wiring. Freezing...");
         Serial.flush();
