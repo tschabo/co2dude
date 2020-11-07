@@ -1,6 +1,5 @@
 
 // Hardware setup ...
-
 #include "configuration.h"
 
 #include <Arduino.h>
@@ -14,6 +13,7 @@
 #include "utils.h"
 #include "CO2Sensor/ICo2Sensor.h"
 #include "LedStrip/LedStrip.h"
+#include <limits>
 
 SSD1306Wire display(0x3c, SDA, SCL, GEOMETRY_128_32);
 RTC_DS1307 rtc;
@@ -59,12 +59,73 @@ char g_currentTimestamp[20]{}; // YYYY/MM/DD HH:MM:SS
 DateTime now;
 uint16_t ppm{};
 
+const char CMD_SET_TIME[] = "set time ";
+
+// valid only for Types <= 16 bit
+// returns the max of the type in case of failure
+template <typename T>
+T toUnsignedInteger(const char *begin, const char *end)
+{
+  if (end - begin > 5)
+    return std::numeric_limits<T>::max();
+  uint32_t result{};
+  uint16_t multiplier{1};
+  for (; end >= begin; end--, multiplier *= 10)
+  {
+    if (*end > '9' || *end < '0')
+      return std::numeric_limits<T>::max();
+    result += (*end - '0') * multiplier;
+  }
+  if (result < std::numeric_limits<T>::max())
+    return result;
+  return std::numeric_limits<T>::max();
+}
+
+void execCommand(const String &c)
+{
+  if (c.startsWith(CMD_SET_TIME))
+  {
+    if (c.length() != 28)
+    {
+      Serial.print("Syntax Error: ");
+      Serial.println(c);
+      Serial.println("format is YYYY/MM/DD HH/MM/SS");
+      return;
+    }
+
+    const char *pYear = c.c_str() + 9;
+    const char *pMonth = pYear + 5;
+    const char *pDay = pMonth + 3;
+    const char *pHour = pDay + 3;
+    const char *pMinute = pHour + 3;
+    const char *pSecond = pMinute + 3;
+
+    DateTime dt(toUnsignedInteger<uint16_t>(pYear, pYear + 3),
+                toUnsignedInteger<uint8_t>(pMonth, pMonth + 1),
+                toUnsignedInteger<uint8_t>(pDay, pDay + 1),
+                toUnsignedInteger<uint8_t>(pHour, pHour + 1),
+                toUnsignedInteger<uint8_t>(pMinute, pMinute + 1),
+                toUnsignedInteger<uint8_t>(pSecond, pSecond + 1));
+    if(!dt.isValid())
+    {
+      Serial.println("timestamp not valid!");
+      Serial.println(dt.toString("YYYY/MM/DD hh:mm:ss"));
+      return;
+    }
+    rtc.adjust(dt);
+    Serial.println("success");
+    return;
+  }
+  Serial.print("unknown conmmand: ");
+  Serial.println(c);
+}
+
 void loop()
 {
   static auto everySecond = CheckTimeSpanPassed(1000, true);
   static auto every10Seconds = CheckTimeSpanPassed(10000, true);
   static auto every20Millis = CheckTimeSpanPassed(20, false);
-  
+
   if (every20Millis())
   {
     ledStrip.setPpm(ppm);
@@ -90,5 +151,9 @@ void loop()
     display.setTextAlignment(TEXT_ALIGN_CENTER);
     display.drawString(64, 14, String(ppm) + " ppm");
     display.display();
+  }
+  if (Serial.available() > 0)
+  {
+    execCommand(Serial.readString());
   }
 }
